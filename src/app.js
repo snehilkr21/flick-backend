@@ -1,21 +1,9 @@
 const express = require("express");
 const app = express();
 
-//this will handle only get method
-app.get("/hello", (req, res) => {
-  res.send("hello get");
-});
-
-app.get("/user", (req, res) => {
-  res.send({ firstName: "snehil", lastName: "kumar" });
-});
-
-app.post("/user", (req, res) => {
-  res.send("data succesfully saved");
-});
-//this will matchall the http method API call to /hello
-app.use("/hello", (req, res) => {
-  res.send("hello all");
+app.get("/abc", (req, res) => {
+  console.log(req.query);
+  res.send(`hello`);
 });
 
 app.listen(7777, () => {
