@@ -1,19 +1,13 @@
 const express = require("express");
 const app = express();
-
-app.use("/", (req, res, next) => {
-  console.log("Dashboard");
- next()
+const {auth} = require("../middleware/auth");
+app.use("/admin", auth);
+app.get("/admin/getAllData", (req, res, next) => {
+  res.send("all user data");
 });
-app.use("/abc", (req, res, next) => {
-  console.log("abc");
-  next();
+app.get("/admin/deleteone", (req, res, next) => {
+  res.send("delet one ");
 });
-app.use("/user", (req, res, next) => {
-   console.log("user");
-   res.send("user")
- });
-
 app.listen(7777, () => {
   console.log("Server is successfully started");
 });
