@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const connectDB = require("./config/database");
+const { findByIdAndUpdate } = require("./modles/user");
 const UserModel = require("./modles/user");
 
 app.use(express.json());
@@ -15,6 +16,7 @@ connectDB()
   .catch((err) => {
     console.error("Databse cannot be connected");
   });
+
 app.post("/signup", async (req, res) => {
   // i  am creating a new instance of a user model using the data which we got from the client
   const userObj = new UserModel(req.body);
@@ -55,7 +57,6 @@ app.delete("/user", async (req, res) => {
   const id = req.body["_id"];
   try {
     const data = await UserModel.findByIdAndDelete({ _id: id });
-    console.log("data", data)
     if (data) {
       res.send("User delete succesfully");
     } else {
@@ -66,5 +67,21 @@ app.delete("/user", async (req, res) => {
   }
 });
 
-
 //to update the user
+app.patch("/user", async (req, res) => {
+  console.log("req.body ", req.body);
+  const id = req.body["_id"];
+  const bodyData = req.body;
+  try {
+    const data = await UserModel.findByIdAndUpdate({ _id: id }, bodyData);
+    console.log("data ", data);
+    if (data) {
+      res.send("Updated ...");
+    } else {
+      res.status(400).send("Not Found");
+    }
+  } catch (err) {
+    console.log("err ", err);
+    res.status(404).send("Something went wrong!! ", err.message);
+  }
+});
