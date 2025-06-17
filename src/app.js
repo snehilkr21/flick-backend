@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 const connectDB=require("./config/database")
 const UserModel= require("./modles/user")
+
+app.use(express.json())
+
 connectDB()
   .then(() => {
     console.log("Database connection successfully");
@@ -13,13 +16,8 @@ connectDB()
     console.error("Databse cannot be connected");
   });
 app.post("/signup", async (req,res)=>{
-  const userObj= new UserModel({
-    firstName:"rahul",
-    lastName:"kumar",
-    gender:"Male",
-    password:"rahul@123",
-    emailid:"rahul@gmail.com"
-  })
+  // i  am creating a new instance of a user model using the data which we got from the client
+  const userObj= new UserModel(req.body)
   try{
     await userObj.save()
     res.send("User added Successfully")
