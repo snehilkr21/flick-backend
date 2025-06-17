@@ -49,3 +49,22 @@ app.get("/feed", async (req, res) => {
     res.status(400).send("Something went wrong");
   }
 });
+
+//to delete a user
+app.delete("/user", async (req, res) => {
+  const id = req.body["_id"];
+  try {
+    const data = await UserModel.findByIdAndDelete({ _id: id });
+    console.log("data", data)
+    if (data) {
+      res.send("User delete succesfully");
+    } else {
+      res.status(400).send("Not Found");
+    }
+  } catch (err) {
+    res.status(404).send("Something went wrong");
+  }
+});
+
+
+//to update the user
