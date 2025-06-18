@@ -1,23 +1,59 @@
-const mongoose=require("mongoose")
-const userSchema=new mongoose.Schema({
-    firstName:{
-        type:String
+const mongoose = require("mongoose");
+var validator = require("validator");
+const userSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: true,
     },
-    lastName:{
-        type:String
+    lastName: {
+      type: String,
     },
-    age:{
-        type:Number
+    age: {
+      type: Number,
     },
-    emailId:{
-        type:String
+    emailId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Please provide the correct email id");
+        }
+      },
     },
-    password:{
-        type:String,
+    password: {
+      type: String,
     },
-    gender:{
-        type:String
-    }
-})
-const UserModel = mongoose.model("User",userSchema)
-module.exports=UserModel
+    gender: {
+      type: String,
+      validate(value) {
+        if (!["male", "female", "other"].includes(value)) {
+          throw new Error("Gender is not valid");
+        }
+      },
+    },
+    photoUrl: {
+      type: String,
+    },
+    about: {
+      type: String,
+      default: "This is default about of the user",
+    },
+    skills: {
+      type: [String],
+      validate(value) {
+        if (value.length > 5) {
+          throw new Error("User only allowed to add 5 skills");
+        }
+      },
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+const UserModel = mongoose.model("User", userSchema);
+module.exports = UserModel;

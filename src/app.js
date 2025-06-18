@@ -68,13 +68,21 @@ app.delete("/user", async (req, res) => {
 });
 
 //to update the user
-app.patch("/user", async (req, res) => {
-  console.log("req.body ", req.body);
-  const id = req.body["_id"];
+app.patch("/user/:id", async (req, res) => {
+  const id = req.params?.id;
   const bodyData = req.body;
+  const ALLOWED_UPDATE = ["photoUrl", "about", "gender", "age", "skills"];
   try {
-    const data = await UserModel.findByIdAndUpdate({ _id: id }, bodyData);
-    console.log("data ", data);
+    const isUpdatedAllowed = Object.keys(bodyData).every((e) =>
+      ALLOWED_UPDATE.includes(e)
+    );
+    if (!isUpdatedAllowed) {
+      throw new Error("Update not allowed");
+    }
+    const data = await UserModel.findByIdAndUpdate({ _id: id }, bodyData, {
+      runValidators: true,
+    });
+
     if (data) {
       res.send("Updated ...");
     } else {
@@ -82,6 +90,6 @@ app.patch("/user", async (req, res) => {
     }
   } catch (err) {
     console.log("err ", err);
-    res.status(404).send("Something went wrong!! ", err.message);
+    res.status(400).json({ error: err.message });
   }
 });
