@@ -5,8 +5,11 @@ const { findByIdAndUpdate } = require("./modles/user");
 const UserModel = require("./modles/user");
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 app.use(express.json());
+app.use(cookieParser());
 
 connectDB()
   .then(() => {
@@ -50,6 +53,8 @@ app.post("/login", async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Invalid Password");
     } else {
+      const token = jwt.sign({ _id: user._id }, "Flick@123$$");
+      res.cookie("token", token);
       res.send("Login Successfully");
     }
   } catch (err) {
@@ -67,6 +72,24 @@ app.get("/user", async (req, res) => {
     else res.status(404).send("User not found");
   } catch (err) {
     res.status(400).send("Cannot find User ", err.message);
+  }
+});
+
+app.get("/profile", async (req, res) => {
+  try {
+    const cookies = req.cookies;
+    const { token } = cookies;
+    if (!token) {
+      throw new error("Invalid Token");
+    }
+    const decodedMessage = await jwt.verify(token, "Flick@123$$");
+    const user = await UserModel.findOne({ _id: decodedMessage._id });
+    if (!user) {
+      throw new Error("No User Found!");
+    }
+    res.send(user);
+  } catch (err) {
+    res.status(400).send("Error ", err.message);
   }
 });
 
@@ -125,7 +148,6 @@ app.patch("/user/:id", async (req, res) => {
       res.status(400).send("Not Found");
     }
   } catch (err) {
-    console.log("err ", err);
     res.status(400).json({ error: err.message });
   }
 });
