@@ -71,7 +71,14 @@ app.delete("/user", async (req, res) => {
 app.patch("/user/:id", async (req, res) => {
   const id = req.params?.id;
   const bodyData = req.body;
-  const ALLOWED_UPDATE = ["photoUrl", "about", "gender", "age", "skills"];
+  const ALLOWED_UPDATE = [
+    "photoUrl",
+    "about",
+    "gender",
+    "age",
+    "skills",
+    "password",
+  ];
   try {
     const isUpdatedAllowed = Object.keys(bodyData).every((e) =>
       ALLOWED_UPDATE.includes(e)
