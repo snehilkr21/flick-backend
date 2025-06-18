@@ -3,6 +3,8 @@ const app = express();
 const connectDB = require("./config/database");
 const { findByIdAndUpdate } = require("./modles/user");
 const UserModel = require("./modles/user");
+const { validateSignUpData } = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 app.use(express.json());
 
@@ -17,14 +19,41 @@ connectDB()
     console.error("Databse cannot be connected");
   });
 
+//signup
 app.post("/signup", async (req, res) => {
-  // i  am creating a new instance of a user model using the data which we got from the client
-  const userObj = new UserModel(req.body);
+  const { firstName, lastName, emailId, password } = req.body;
   try {
+    validateSignUpData(req);
+    const hasedPassword = await bcrypt.hash(password, 10);
+    const userObj = new UserModel({
+      firstName,
+      lastName,
+      emailId,
+      password: hasedPassword,
+    });
     await userObj.save();
     res.send("User added Successfully");
   } catch (err) {
     res.status(400).send("Error while saving the User" + err.message);
+  }
+});
+
+//login
+app.post("/login", async (req, res) => {
+  const { emailId, password } = req.body;
+  try {
+    const user = await UserModel.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid credinitials");
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Invalid Password");
+    } else {
+      res.send("Login Successfully");
+    }
+  } catch (err) {
+    res.status(400).send("ERROR! ", err.message);
   }
 });
 
