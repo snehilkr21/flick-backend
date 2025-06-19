@@ -6,7 +6,6 @@ const UserModel = require("./modles/user");
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
 const { userAuth } = require("./middleware/auth");
 
 app.use(express.json());
@@ -50,7 +49,8 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Invalid credinitials");
     }
-    const isPasswordValid = await user.validatePassword(password);
+    console.log("5252", user);
+    const isPasswordValid = await user.validPassword(password);
     if (!isPasswordValid) {
       throw new Error("Invalid Password");
     } else {
