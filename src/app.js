@@ -7,6 +7,7 @@ const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middleware/auth");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -53,8 +54,13 @@ app.post("/login", async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Invalid Password");
     } else {
-      const token = jwt.sign({ _id: user._id }, "Flick@123$$");
-      res.cookie("token", token);
+      const token = jwt.sign({ _id: user._id }, "Flick@123$$", {
+        expiresIn: "1d",
+      });
+      //cookiess expire after 8hrs
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 8 * 3600000),
+      });
       res.send("Login Successfully");
     }
   } catch (err) {
@@ -75,18 +81,9 @@ app.get("/user", async (req, res) => {
   }
 });
 
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const cookies = req.cookies;
-    const { token } = cookies;
-    if (!token) {
-      throw new error("Invalid Token");
-    }
-    const decodedMessage = await jwt.verify(token, "Flick@123$$");
-    const user = await UserModel.findOne({ _id: decodedMessage._id });
-    if (!user) {
-      throw new Error("No User Found!");
-    }
+    const user = req.user;
     res.send(user);
   } catch (err) {
     res.status(400).send("Error ", err.message);
