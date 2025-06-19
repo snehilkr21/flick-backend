@@ -49,7 +49,6 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Invalid credinitials");
     }
-    console.log("5252", user);
     const isPasswordValid = await user.validPassword(password);
     if (!isPasswordValid) {
       throw new Error("Invalid Password");
