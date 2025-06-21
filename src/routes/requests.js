@@ -53,6 +53,38 @@ requestRouter.post(
   }
 );
 
+requestRouter.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const logedInUser = req.user;
+      const { status, requestId } = req.params;
+
+      const allowedStatus = ["accepted", "rejected"];
+
+      if (!allowedStatus.includes(status)) {
+        throw new Error("Status not allowed");
+      }
+
+      //here we are restricting that if status is rejectd then we donot change it
+      const connectionRequest = await ConnectionRequestModel.findOne({
+        _id: requestId,
+        toUserId: logedInUser._id,
+        status: "interested",
+      });
+
+      if (!connectionRequest) {
+        throw new Error("Connection request not find");
+      }
+      connectionRequest.status = status;
+      const data = await connectionRequest.save();
+      res.send("Connection request send successfully");
+    } catch (err) {
+      res.status(400).send("Error " + err.message);
+    }
+  }
+);
 module.exports = {
   requestRouter,
 };
