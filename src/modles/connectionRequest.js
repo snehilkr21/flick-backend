@@ -4,12 +4,13 @@ const connectionRequestSchema = new mongoose.Schema(
     fromUserId: {
       type: mongoose.Schema.Types.ObjectId,
       require: true,
-      unique: true,
+      ref: "User",
     },
     toUserId: {
       type: mongoose.Schema.Types.ObjectId,
       require: true,
-      unique: true,
+      index: true,
+      ref: "User",
     },
     status: {
       type: String,
@@ -32,7 +33,7 @@ connectionRequestSchema.pre("save", function (next) {
   }
   next();
 });
-connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
+
 const ConnectionRequestModel = mongoose.model(
   "ConnectionRequest",
   connectionRequestSchema
