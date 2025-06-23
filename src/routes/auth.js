@@ -33,7 +33,7 @@ authRouter.post("/login", async (req, res) => {
     }
     const isPasswordValid = await user.validPassword(password);
     if (!isPasswordValid) {
-      throw new Error("Invalid Password");
+      return res.status(401).json({ message: "Invalid email or password" });
     } else {
       const token = await user.getJWT();
       //cookiess expire after 8hrs
@@ -46,7 +46,7 @@ authRouter.post("/login", async (req, res) => {
       });
     }
   } catch (err) {
-    res.status(400).send("ERROR! " + err.message);
+    return res.status(400).json({ message: err.message });
   }
 });
 
