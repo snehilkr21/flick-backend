@@ -69,7 +69,7 @@ requestRouter.post(
 
       //here we are restricting that if status is rejectd then we donot change it
       const connectionRequest = await ConnectionRequestModel.findOne({
-        fromUserId: requestId,
+        _id: requestId,
         toUserId: logedInUser._id,
         status: "interested",
       });

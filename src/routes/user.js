@@ -35,7 +35,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
 const dataRequired = [
   "firstName",
   "lastName",
-  "photoURL",
+  "photoUrl",
   "about",
   "age",
   "gender",
