@@ -10,14 +10,21 @@ authRouter.post("/signup", async (req, res) => {
   try {
     validateSignUpData(req);
     const hasedPassword = await bcrypt.hash(password, 10);
-    const userObj = new UserModel({
+    const user = new UserModel({
       firstName,
       lastName,
       emailId,
       password: hasedPassword,
     });
-    await userObj.save();
-    res.send("User added Successfully");
+    const savedUser = await user.save();
+    const token = await savedUser.getJWT();
+    //cookiess expire after 8hrs
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000),
+    });
+    res
+      .status(200)
+      .json({ message: "user created successfully", data: savedUser });
   } catch (err) {
     res.status(400).send("Error while saving the User" + err.message);
   }
