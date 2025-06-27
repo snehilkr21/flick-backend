@@ -30,8 +30,8 @@ requestRouter.post(
       //if the connection is made between A to B or B to A (B cannnot send connection A if A already send it)
       const existingConnectRequest = await ConnectionRequestModel.findOne({
         $or: [
-          { fromUserId, toUserId },
-          { fromUserId: toUserId, toUserId: fromUserId },
+          { fromUserId, toUserId }, //user 1->user 2
+          { fromUserId: toUserId, toUserId: fromUserId }, //user 2->user 1
         ],
       });
       if (existingConnectRequest) {
