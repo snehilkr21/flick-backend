@@ -32,32 +32,50 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
 });
 
 //to get all the users who accepted my request
+const dataRequired = [
+  "firstName",
+  "lastName",
+  "photoURL",
+  "about",
+  "age",
+  "gender",
+];
 userRouter.get("/user/connections", userAuth, async (req, res) => {
   try {
-    const logedInUser = req.user;
-    const connectionRequest = await ConnectionRequestModel.find({
+    const loggedInUser = req.user;
+
+    //get the doc with the status "accepted" and loggedin user  id matches either in fromuserId || toUserId
+    const connectionList = await ConnectionRequestModel.find({
       $or: [
-        { fromUserId: logedInUser._id, status: "accepted" },
-        { toUserId: logedInUser._id, status: "accepted" },
+        { toUserId: loggedInUser._id, status: "accepted" },
+        { fromUserId: loggedInUser._id, status: "accepted" },
       ],
     })
-      .populate("fromUserId", ["firstName", "lastName"])
-      .populate("toUserId", ["firstName", "lastName"]);
-    if (!connectionRequest.length) {
-      res.send("No user Found");
+      .populate("fromUserId", dataRequired)
+      .populate("toUserId", dataRequired);
+
+    if (!connectionList) {
+      return res.status(404).json({ message: "There is No connection!" });
     }
-    const data = connectionRequest.map((row) => {
-      if (row.fromUserId._id.toString() === row.toUserId._id.toString()) {
-        return row.toUserId;
+
+    //checking whether the user is sender or not.
+    //if sender,we give the detail of reciever who recieved the coonection
+    //if reciever,we give the detail of sender who send the connection
+    const data = connectionList.map((connection) => {
+      if (
+        connection.fromUserId._id.toString() === loggedInUser._id.toString()
+      ) {
+        return connection.toUserId;
       }
-      return row.fromUserId;
+      return connection.fromUserId;
     });
+
     res.json({
-      message: "Hey the list of connection",
-      data: data,
+      message: "Connections fetched successfully!",
+      data,
     });
   } catch (err) {
-    res.status(400).send("Error " + err.message);
+    res.status(400).json({ message: "ERROR: " + err.message });
   }
 });
 
