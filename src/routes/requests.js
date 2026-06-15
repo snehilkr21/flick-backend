@@ -4,7 +4,6 @@ const { userAuth } = require("../middleware/auth");
 const { ConnectionRequestModel } = require("../modles/connectionRequest");
 const UserModel = require("../modles/user");
 const mongoose = require("mongoose");
-const sendEmail = require("../utils/sentEmail");
 
 requestRouter.post(
   "/request/send/:status/:toUserId",
@@ -46,7 +45,6 @@ requestRouter.post(
         status,
       });
       const data = await connectionRequest.save();
-      const emailRes = await sendEmail.run(`Yo receive friendRequest from ${req.user.firstName}`);
       res.json({
         message: `${req.user.firstName} is ${status} in ${toUserIdExist.firstName}`,
       });
