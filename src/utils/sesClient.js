@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const { SESClient } = require("@aws-sdk/client-ses");
 const REGION = "eu-north-1";
 // Credentials are automatically resolved using the AWS SDK credential provider chain.
