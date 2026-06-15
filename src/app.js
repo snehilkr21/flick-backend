@@ -9,7 +9,7 @@ const { requestRouter } = require("./routes/requests");
 const { userRouter } = require("./routes/user");
 
 var cors = require("cors");
-
+require('dotenv').config()
 app.use(
   cors({
     origin: "http://localhost:5173", // Allow only a specific origin
