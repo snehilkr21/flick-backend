@@ -7,6 +7,8 @@ const { authRouter } = require("./routes/auth");
 const { profileRouter } = require("./routes/profile");
 const { requestRouter } = require("./routes/requests");
 const { userRouter } = require("./routes/user");
+const  paymentRouter  = require("./routes/payment");
+
 
 var cors = require("cors");
 require('dotenv').config()
@@ -27,6 +29,7 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/", paymentRouter);
 
 connectDB()
   .then(() => {
