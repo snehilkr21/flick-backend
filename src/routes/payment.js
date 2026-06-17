@@ -52,7 +52,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
             webhookSignature, 
             process.env.WEB_HOOK_SECRET
         )
-
+        console.log("55", isWebhookValid)
         if(!isWebhookValid) {
             return res.status(400).json({ msg : "Invalid webhook signature" });
         }
@@ -62,16 +62,17 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
 
         const payment = await Payment.findOne({orderId : paymentDetails.order_id});
         await payment.save()
-
+        console.log("6565 ",payment)
 
         const user = await User.findOne({_id : payment.userId});
         user.isPremium = isThursdayWithOptions;
         user.membershipType = payment.notes.membershipType
         await user.save()
-
+        console.log("7171 " ,user)
         return res.status(200).json({ msg : "Payment successful" });
     }catch (err) {
-
+        console.error("Error processing webhook:", err);
+        return res.status(500).json({ msg : "Internal server error" });
     }
 })
 
