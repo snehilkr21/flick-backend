@@ -9,35 +9,36 @@ const getSecretRoomId = (userId, targetUserId) => {
     .digest("hex");
 };
 
-const initilizeSocket = (server) =>{
-    const io = socket(server, {
-      cors : {
-        origin: [
-            "http://localhost:5173",
-            "https://flickworld.online"
-        ],
-      }
-    })
-    
-    //this is place where we receive the connection from client end
-    io.on("connection" , (socket) =>{
-      //handle event
-      socket.on("joinChat" , ({firstName, userId, targetUserId})=>{
-         const roomId = getSecretRoomId(userId, targetUserId);
-         socket.join(roomId)
-      });
-      socket.on("sendMessage" , async ({firstName, lastName, userId, targetUserId, text})=>{
-        const roomId = getSecretRoomId(userId, targetUserId);
+const initilizeSocket = (server) => {
+  const io = socket(server, {
+    cors : {
+      origin: "http://localhost:5173",
+    },
+  });
+
+  io.on("connection", (socket) => {
+    socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
+      const roomId = getSecretRoomId(userId, targetUserId);
+      console.log(firstName + " joined Room : " + roomId);
+      socket.join(roomId);
+    });
+
+    socket.on("sendMessage" , async ({firstName, lastName, userId, targetUserId, text})=>{
         try {
+          const roomId = getSecretRoomId(userId, targetUserId);
+          console.log(firstName + " " + text);
+
+          // TODO: Check if userId & targetUserId are friends
+
           let chat = await Chat.findOne({
-            participants : { $all : [userId , targetUserId]}
+            participants : { $all : [userId , targetUserId]},
           })
           if(!chat) {
-             chat = new Chat({
-                participants : [ userId, targetUserId ],
-                message : []
+            chat = new Chat({
+              participants : [ userId, targetUserId ],
+              message : []
             })
-          } 
+          }
           chat.message.push({
             senderId : userId,
             text
@@ -45,14 +46,15 @@ const initilizeSocket = (server) =>{
           await chat.save()
           io.to(roomId).emit("messageReceived", { firstName, lastName, text });
         } catch (err) {
-         console.log("err ",err)
+          console.log("err ",err)
         }
+      }
+    )
 
-      })
-      socket.on("disconnect", ()=>{
+    socket.on("disconnect", ()=>{
 
-      })
     })
+  })
 }
 
 module.exports = initilizeSocket
