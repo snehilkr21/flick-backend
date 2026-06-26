@@ -8,9 +8,13 @@ const { profileRouter } = require("./routes/profile");
 const { requestRouter } = require("./routes/requests");
 const { userRouter } = require("./routes/user");
 const  paymentRouter  = require("./routes/payment");
+const chatRouter = require("./routes/chat.js")
+
+const initilizeSocket = require("./utils/socket.js")
 
 
 var cors = require("cors");
+const http = require("http");
 require('dotenv').config()
 
 require("./utils/cronjob.js")
@@ -30,11 +34,15 @@ app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use("/", paymentRouter);
+app.use("/",chatRouter)
+
+const server = http.createServer(app)
+initilizeSocket(server)
 
 connectDB()
   .then(() => {
     console.log("Database connection successfully");
-    app.listen(7777, () => {
+    server.listen(7777, () => {
       console.log("Server is successfully started");
     });
   })
